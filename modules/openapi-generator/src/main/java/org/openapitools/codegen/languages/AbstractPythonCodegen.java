@@ -45,6 +45,8 @@ public abstract class AbstractPythonCodegen extends DefaultCodegen implements Co
     protected String packageVersion = "1.0.0";
     protected String projectName; // for setup.py, e.g. petstore-api
 
+    protected boolean withAWSV4Signature = false;
+
     public AbstractPythonCodegen() {
         super();
 
@@ -133,6 +135,10 @@ public abstract class AbstractPythonCodegen extends DefaultCodegen implements Co
             return getSchemaType(p) + "(str, " + getTypeDeclaration(inner) + ")";
         }
         return super.getTypeDeclaration(p);
+    }
+
+    public void setWithAWSV4Signature(boolean withAWSV4Signature) {
+        this.withAWSV4Signature = withAWSV4Signature;
     }
 
     /**

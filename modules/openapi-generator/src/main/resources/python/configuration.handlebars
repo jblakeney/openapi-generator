@@ -157,6 +157,27 @@ conf = {{{packageName}}}.Configuration(
     )
 )
 {{/if}}
+{{#if hasAwsSignatureV4Methods}}
+    AWS Sigv4 Authentication Example.
+    Given the following security scheme in the OpenAPI specification:
+      components:
+        securitySchemes:
+          aws_sigv4:
+            type: 'apiKey'
+            name: 'Authorization'
+            in: 'header'
+            x-amazon-apigateway-authtype: 'awsSigv4'
+
+    Configure API client with AWS Sigv4 authetnication.
+
+conf = {{{packageName}}}.Configuration(
+    aws_sigv4_info = {{{packageName}}}.aws_sigv4.AwsSigv4Configuration(
+        service_name =          'execute-api',
+        region_name =           "us-east-1",
+        boto3_session =         None
+    )
+)
+{{/if}}
 {{/if}}
     """
 
@@ -169,6 +190,9 @@ conf = {{{packageName}}}.Configuration(
                  disabled_client_side_validations="",
 {{#if hasHttpSignatureMethods}}
                  signing_info=None,
+{{/if}}
+{{#if hasAwsSignatureV4Methods}}
+                 aws_sigv4_info=None,
 {{/if}}
                  server_index=None, server_variables=None,
                  server_operation_index=None, server_operation_variables=None,
@@ -216,6 +240,11 @@ conf = {{{packageName}}}.Configuration(
             signing_info.host = host
         self.signing_info = signing_info
         """The HTTP signing configuration
+        """
+{{/if}}
+{{#if hasAwsSignatureV4Methods}}
+        self.aws_sigv4_info = aws_sigv4_info
+        """The AWS Sigv4 configuration
         """
 {{/if}}
 {{#if hasOAuthMethods}}
@@ -520,6 +549,15 @@ conf = {{{packageName}}}.Configuration(
         if self.signing_info is not None:
             auth['{{name}}'] = {
                 'type': 'http-signature',
+                'in': 'header',
+                'key': 'Authorization',
+                'value': None  # Signature headers are calculated for every HTTP request
+            }
+  {{/if}}
+  {{#if isAwsv4Signature}}
+        if self.aws_sigv4_info is not None:
+            auth['{{name}}'] = {
+                'type': 'api-key',
                 'in': 'header',
                 'key': 'Authorization',
                 'value': None  # Signature headers are calculated for every HTTP request

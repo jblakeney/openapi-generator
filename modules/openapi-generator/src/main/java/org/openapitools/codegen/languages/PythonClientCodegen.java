@@ -444,6 +444,9 @@ public class PythonClientCodegen extends AbstractPythonCodegen {
         if (ProcessUtils.hasHttpSignatureMethods(authMethods)) {
             supportingFiles.add(new SupportingFile("signing." + templateExtension, packagePath(), "signing.py"));
         }
+        if (ProcessUtils.hasAwsSignatureV4Methods(authMethods)) {
+            supportingFiles.add(new SupportingFile("aws_sigv4." + templateExtension, packagePath(), "aws_sigv4.py"));
+        }
 
         // default this to true so the python ModelSimple models will be generated
         ModelUtils.setGenerateAliasAsModel(true);

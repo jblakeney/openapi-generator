@@ -1,0 +1,32 @@
+# coding: utf-8
+{{>partial_header}}
+
+import boto3
+from botocore.auth import SigV4Auth
+from botocore.awsrequest import AWSRequest
+from botocore.compat import (parse_qsl, urlparse)
+
+
+class AwsSigv4Configuration(object):
+
+    def __init__(self, service_name='execute-api',
+                       region_name="us-east-1",
+                       boto3_session=None):
+        self.service_name = service_name
+        self.boto3_session = boto3_session or boto3.Session(region_name=region_name)
+
+        self.sigv4 = SigV4Auth(
+            credentials=self.boto3_session.get_credentials(),
+            service_name=self.service_name,
+            region_name=self.boto3_session.region_name,
+        )
+
+    def get_aws_signature_v4_headers(self, method, url, body):
+        aws_request = AWSRequest(
+            method=method,
+            url=url,
+            data=body,
+        )
+
+        self.sigv4.add_auth(aws_request)
+        return aws_request.headers
